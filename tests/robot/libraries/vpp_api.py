@@ -174,7 +174,7 @@ class PapiExecutor(object):
         self._ssh.set_missing_host_key_policy(AutoAddPolicy())
 
         # The list of PAPI commands to be executed on the node.
-        self._api_command_list = list()
+        self._api_command_list = []
 
     def __enter__(self):
         try:
@@ -244,16 +244,16 @@ class PapiExecutor(object):
             :rtype: dict or str or int
             """
             if isinstance(val, dict):
-                val_dict = dict()
+                val_dict = {}
                 for val_k, val_v in val.items():
                     val_dict[str(val_k)] = process_value(val_v)
                 return val_dict
             else:
                 return binascii.hexlify(val) if isinstance(val, str) else val
 
-        api_data_processed = list()
+        api_data_processed = []
         for api in api_d:
-            api_args_processed = dict()
+            api_args_processed = {}
             for a_k, a_v in api["api_args"].iteritems():
                 api_args_processed[str(a_k)] = process_value(a_v)
             api_data_processed.append(dict(api_name=api["api_name"],
@@ -271,12 +271,12 @@ class PapiExecutor(object):
         :returns: Processed API reply / a part of API reply.
         :rtype: dict
         """
-        reply_dict = dict()
-        reply_value = dict()
+        reply_dict = {}
+        reply_value = {}
         for reply_key, reply_v in api_r.items():
             for a_k, a_v in reply_v.iteritems():
                 reply_value[a_k] = binascii.unhexlify(a_v) \
-                    if isinstance(a_v, str) else a_v
+                        if isinstance(a_v, str) else a_v
             reply_dict[reply_key] = reply_value
         return reply_dict
 
@@ -288,11 +288,11 @@ class PapiExecutor(object):
         :returns: Processed API reply.
         :rtype: list or dict
         """
-        if isinstance(api_reply, list):
-            reverted_reply = [self._revert_api_reply(a_r) for a_r in api_reply]
-        else:
-            reverted_reply = self._revert_api_reply(api_reply)
-        return reverted_reply
+        return (
+            [self._revert_api_reply(a_r) for a_r in api_reply]
+            if isinstance(api_reply, list)
+            else self._revert_api_reply(api_reply)
+        )
 
     def _execute_papi(self, api_data, method='request', timeout=120):
         """Execute PAPI command(s) on remote node and store the result.
@@ -361,11 +361,11 @@ class PapiExecutor(object):
         local_list = self._api_command_list
 
         # Clear first as execution may fail.
-        self._api_command_list = list()
+        self._api_command_list = []
 
         stdout, stderr = self._execute_papi(
             local_list, method=method, timeout=timeout)
-        papi_reply = list()
+        papi_reply = []
         if process_reply:
             try:
                 json_data = json.loads(stdout)

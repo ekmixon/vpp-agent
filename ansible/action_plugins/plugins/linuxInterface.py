@@ -38,4 +38,4 @@ class LinuxInterfaceValidation:
         return MessageToJson(dhcp_proxy, preserving_proto_field_name=True, indent=None)
 
     def create_key(self):
-        return "/vnf-agent/{}/config/linux/interfaces/v2/interface/{}".format(self.agent_name, self.values['name'])
+        return f"/vnf-agent/{self.agent_name}/config/linux/interfaces/v2/interface/{self.values['name']}"

@@ -49,9 +49,7 @@ def Get_Interface_State(out, index):
 # input - mac in dec from sw_interface_dump
 # output - regular mac in hex
 def Convert_Dec_MAC_To_Hex(mac):
-    hexmac=[]
-    for num in mac[:6]:
-        hexmac.append("%02x" % num)
+    hexmac = ["%02x" % num for num in mac[:6]]
     hexmac = ":".join(hexmac)
     return hexmac
 
@@ -78,14 +76,14 @@ def Parse_Memif_Info(info):
             if (line.strip().split()[0] == "socket-id"):
                 try:
                     socket_id = int(line.strip().split()[1])
-                    state.append("id="+line.strip().split()[3])
+                    state.append(f"id={line.strip().split()[3]}")
                     for sock_line in sockets_line:
-                      try:
-                           num = int(sock_line.strip().split()[0])
-                           if (num == socket_id):
-                               state.append("socket=" + sock_line.strip().split()[-1])
-                      except ValueError:
-                           pass
+                        try:
+                            num = int(sock_line.strip().split()[0])
+                            if (num == socket_id):
+                                state.append(f"socket={sock_line.strip().split()[-1]}")
+                        except ValueError:
+                             pass
                 except ValueError:
                     pass
     if "enabled=1" not in state:
@@ -122,20 +120,28 @@ def Parse_BD_Interfaces(node, bd, etcd_json, bd_dump):
         bd_sw_if_index =  int["sw_if_index"]
         etcd_name = "none"
         for key_data in etcd_json:
-            if key_data["node"] == node and key_data["type"] == "status" and "/interface/" in key_data["key"]:
-                if "if_index" in key_data["data"]:
-                    if key_data["data"]["if_index"] == bd_sw_if_index:
-                        etcd_name = key_data["data"]["name"]
-        interfaces.append("interface="+etcd_name)
+            if (
+                key_data["node"] == node
+                and key_data["type"] == "status"
+                and "/interface/" in key_data["key"]
+                and "if_index" in key_data["data"]
+                and key_data["data"]["if_index"] == bd_sw_if_index
+            ):
+                etcd_name = key_data["data"]["name"]
+        interfaces.append(f"interface={etcd_name}")
     if bd_dump[0]["bvi_sw_if_index"] != 4294967295:
         bvi_sw_if_index = bd_dump[0]["bvi_sw_if_index"]
         etcd_name = "none"
         for key_data in etcd_json:
-            if key_data["node"] == node and key_data["type"] == "status" and "/interface/" in key_data["key"]:
-                if "if_index" in key_data["data"]:
-                    if key_data["data"]["if_index"] == bvi_sw_if_index:
-                        etcd_name = key_data["data"]["name"]
-        interfaces.append("bvi_int="+etcd_name)
+            if (
+                key_data["node"] == node
+                and key_data["type"] == "status"
+                and "/interface/" in key_data["key"]
+                and "if_index" in key_data["data"]
+                and key_data["data"]["if_index"] == bvi_sw_if_index
+            ):
+                etcd_name = key_data["data"]["name"]
+        interfaces.append(f"bvi_int={etcd_name}")
     else:
         interfaces.append("bvi_int=none")
     return interfaces
@@ -148,11 +154,8 @@ def Check_BD_Presence(bd_dump, indexes):
     for bd in bd_dump:
         bd_present = True
         for index in indexes:
-            int_present = False
-            for bd_int in bd["sw_if"]:
-                if bd_int["sw_if_index"] == index:
-                    int_present = True
-            if int_present == False:
+            int_present = any(bd_int["sw_if_index"] == index for bd_int in bd["sw_if"])
+            if not int_present:
                 bd_present = False
         if bd_present == True:
             present = True

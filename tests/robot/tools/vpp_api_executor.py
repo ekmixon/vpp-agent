@@ -62,7 +62,6 @@ def _convert_reply(api_r):
             for idx, val_l in enumerate(val):
                 val[idx] = process_value(val_l)
             return val
-        # no processing for int
         elif hasattr(val, '__int__'):
             return int(val)
         elif isinstance(val, bytes):
@@ -76,7 +75,7 @@ def _convert_reply(api_r):
                 except ipaddress.AddressValueError:
                     # maybe it's not an IP address after all
                     pass
-            elif len(val) in (6, 8):
+            elif len(val) in {6, 8}:
                 # Probably a padded MAC address(8) or "Dmac, Smac, etc."??(6)
                 return val.hex()
 
@@ -88,7 +87,7 @@ def _convert_reply(api_r):
 
             if "(" in repr(val):
                 # it's another vpp-internal object
-                item_dict = dict()
+                item_dict = {}
                 for item in dir(val):
                     if not item.startswith("_") and item not in unwanted_fields:
                         item_dict[item] = process_value(getattr(val, item))
@@ -96,16 +95,14 @@ def _convert_reply(api_r):
             else:
                 # just a simple string
                 return str(val)
-        # Next handles parameters not supporting preferred integer or string
-        # representation to get it logged
         elif hasattr(val, '__repr__'):
             return repr(val)
         else:
             return val
 
-    reply_dict = dict()
+    reply_dict = {}
     reply_key = repr(api_r).split('(')[0]
-    reply_value = dict()
+    reply_value = {}
     for item in dir(api_r):
         if not item.startswith('_') and item not in unwanted_fields:
             reply_value[item] = process_value(getattr(api_r, item))
@@ -119,11 +116,16 @@ class VppApi(object):
 
         jsonfiles = []
         for root, dirnames, filenames in os.walk(vpp_json_dir_core):
-            for filename in fnmatch.filter(filenames, '*.api.json'):
-                jsonfiles.append(os.path.join(vpp_json_dir_core, filename))
+            jsonfiles.extend(
+                os.path.join(vpp_json_dir_core, filename)
+                for filename in fnmatch.filter(filenames, '*.api.json')
+            )
+
         for root, dirnames, filenames in os.walk(vpp_json_dir_plugins):
-            for filename in fnmatch.filter(filenames, '*.api.json'):
-                jsonfiles.append(os.path.join(vpp_json_dir_plugins, filename))
+            jsonfiles.extend(
+                os.path.join(vpp_json_dir_plugins, filename)
+                for filename in fnmatch.filter(filenames, '*.api.json')
+            )
 
         self.vpp = VPP(jsonfiles)
 
@@ -155,7 +157,7 @@ class VppApi(object):
 
         vpp = self.vpp
 
-        reply = list()
+        reply = []
 
         def process_value(val):
             """Process value.
@@ -187,7 +189,7 @@ class VppApi(object):
             api_name = data['api_name']
             api_args_unicode = data['api_args']
             api_reply = dict(api_name=api_name)
-            api_args = dict()
+            api_args = {}
             for a_k, a_v in api_args_unicode.items():
                 api_args[str(a_k)] = process_value(a_v)
             try:
@@ -195,7 +197,7 @@ class VppApi(object):
                 rep = papi_fn(**api_args)
 
                 if isinstance(rep, list):
-                    converted_reply = list()
+                    converted_reply = []
                     for r in rep:
                         converted_reply.append(_convert_reply(r))
                 else:

@@ -5,10 +5,7 @@ import os
 def sort(obj):
     if isinstance(obj, dict):
         return {k: sort(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return sorted(sort(x) for x in obj)
-    else:
-        return obj
+    return sorted(sort(x) for x in obj) if isinstance(obj, list) else obj
 
 # input - json
 # output - pretty printed json with sorted elements
@@ -22,11 +19,7 @@ def ordered_json(data):
 # input - path to file
 # output - True if file exists, else False
 def file_exists(path):
-    if os.path.isfile(path):
-        exists = True
-    else:
-        exists = False
-    return exists
+    return bool(os.path.isfile(path))
 
 def replace_rn_n(mytext):
     if mytext=="":

@@ -15,10 +15,9 @@ def get_interface_index_from_api(data, name):
     for iface in data:
         if iface["sw_interface_details"]["interface_name"] == name:
             return iface["sw_interface_details"]["sw_if_index"]
-    else:
-        raise RuntimeError(
-            "Interface with name {name} not found in dump. "
-            "Dumped data: {data}".format(name=name, data=data))
+    raise RuntimeError(
+        "Interface with name {name} not found in dump. "
+        "Dumped data: {data}".format(name=name, data=data))
 
 
 def get_interface_name_from_api(data, index):
@@ -37,10 +36,9 @@ def get_interface_name_from_api(data, index):
     for iface in data:
         if iface["sw_interface_details"]["sw_if_index"] == index:
             return iface["sw_interface_details"]["interface_name"]
-    else:
-        raise RuntimeError(
-            "Interface with index {index} not found in dump. "
-            "Dumped data: {data}".format(index=index, data=data))
+    raise RuntimeError(
+        "Interface with index {index} not found in dump. "
+        "Dumped data: {data}".format(index=index, data=data))
 
 
 def get_interface_state_from_api(data, index=-1, name="_"):
@@ -65,10 +63,9 @@ def get_interface_state_from_api(data, index=-1, name="_"):
         if iface["sw_interface_details"]["sw_if_index"] == int(index)\
                 or iface["sw_interface_details"]["interface_name"] == name:
             return iface["sw_interface_details"]
-    else:
-        raise RuntimeError(
-            "Interface with index {index} or name {name} not found in dump.\n "
-            "Dumped data:\n {data}".format(index=index, name=name, data=data))
+    raise RuntimeError(
+        "Interface with index {index} or name {name} not found in dump.\n "
+        "Dumped data:\n {data}".format(index=index, name=name, data=data))
 
 
 def convert_str_to_mac_address(hex_mac):
@@ -76,6 +73,4 @@ def convert_str_to_mac_address(hex_mac):
 
     hex_pairs = [hex_mac[(x*2):((x+1)*2)] for x in range(6)]
 
-    mac = "{0}:{1}:{2}:{3}:{4}:{5}".format(*hex_pairs)
-
-    return mac
+    return "{0}:{1}:{2}:{3}:{4}:{5}".format(*hex_pairs)

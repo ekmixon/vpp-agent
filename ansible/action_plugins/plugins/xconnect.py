@@ -19,10 +19,7 @@ from action_plugins.pout.models.vpp.l2.xconnect_pb2 import XConnectPair
 
 
 def plugin_init(name, values, agent_name, ip, port):
-    if name == 'xconnect':
-        return XConnectValidation(values, agent_name)
-    else:
-        return False
+    return XConnectValidation(values, agent_name) if name == 'xconnect' else False
 
 
 class XConnectValidation:
@@ -38,5 +35,4 @@ class XConnectValidation:
         return MessageToJson(dhcp_proxy, preserving_proto_field_name=True, indent=None)
 
     def create_key(self):
-        return "/vnf-agent/{}/config/vpp/l2/v2/xconnect/{}".format(self.agent_name,
-                                                                   self.values['receive_interface'])
+        return f"/vnf-agent/{self.agent_name}/config/vpp/l2/v2/xconnect/{self.values['receive_interface']}"

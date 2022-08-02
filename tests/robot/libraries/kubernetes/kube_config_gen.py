@@ -21,8 +21,6 @@ def mac_hex(number):
     elif number > 99:
         raise NotImplementedError(
             "Incrementing MAC addresses only implemented up to 99.")
-    else:
-        pass
     return temp
 
 
@@ -195,12 +193,12 @@ class YamlConfigGenerator(object):
 
             entities_list.append(entity)
 
-        output = ""
-        for line in yaml.dump(
-                entities_list,
-                default_flow_style=False
-        ).splitlines():
-            output += " "*6 + line + "\n"
+        output = "".join(
+            " " * 6 + line + "\n"
+            for line in yaml.dump(
+                entities_list, default_flow_style=False
+            ).splitlines()
+        )
 
         template = self.templates["sfc"]
         if "---" in template:
@@ -297,5 +295,4 @@ def generate_config(vnf_count, novpp_count, memif_per_vnf,
         template_path,
         vswitch_image, vnf_image, sfc_image)
 
-    topology = generator.generate_config(output_path)
-    return topology
+    return generator.generate_config(output_path)

@@ -32,7 +32,7 @@ class DHCPProxyValidation:
         self.values = values
         self.agent_name =agent_name
         version = ipaddress.ip_address(self.values['source_ip_address']).version
-        self.protocol = 'IPv{}'.format(version)
+        self.protocol = f'IPv{version}'
 
     def validate(self):
         dhcp_proxy = DHCPProxy()
@@ -40,5 +40,4 @@ class DHCPProxyValidation:
         return MessageToJson(dhcp_proxy, preserving_proto_field_name=True, indent=None)
 
     def create_key(self):
-        return "/vnf-agent/{}/config/vpp/v2/dhcp-proxy/{}".format(self.agent_name,
-                                                               self.protocol)
+        return f"/vnf-agent/{self.agent_name}/config/vpp/v2/dhcp-proxy/{self.protocol}"

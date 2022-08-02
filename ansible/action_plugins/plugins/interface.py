@@ -38,4 +38,4 @@ class InterfaceValidation:
         return MessageToJson(interface, preserving_proto_field_name=True, indent=None)
 
     def create_key(self):
-        return "/vnf-agent/{}/config/vpp/v2/interfaces/{}".format(self.agent_name, self.values['name'])
+        return f"/vnf-agent/{self.agent_name}/config/vpp/v2/interfaces/{self.values['name']}"

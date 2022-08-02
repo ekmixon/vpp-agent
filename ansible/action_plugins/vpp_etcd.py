@@ -26,15 +26,15 @@ class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
 
         if task_vars is None:
-            task_vars = dict()
+            task_vars = {}
         plugin = None
         result = super(ActionModule, self).run(tmp, task_vars)
 
         args = self._task.args.copy()
         plugin_name = args.get('value_type')
 
-        plugindir = basedir + '/plugins'
-        poutdir = basedir + '/pout'
+        plugindir = f'{basedir}/plugins'
+        poutdir = f'{basedir}/pout'
         syspath = sys.path
         sys.path = [basedir, plugindir, poutdir] + syspath
 
@@ -46,7 +46,7 @@ class ActionModule(ActionBase):
             return {'failed': True, 'msg': 'agent_name must be defined'}
         for fname in fnames:
             if not fname.startswith(".#") and fname.endswith(".py") and \
-                    not fname.startswith('__'):
+                        not fname.startswith('__'):
                 pluginmod = __import__(fname[:-3])
                 try:
                     plugin = pluginmod.plugin_init(plugin_name, values, agent_name, task_vars.get('bridge_connection'),
@@ -55,12 +55,10 @@ class ActionModule(ActionBase):
                         break
                 except AttributeError as s:
                     print(pluginmod.__dict__)
-                    raise AttributeError(pluginmod.__file__ + ': ' + str(s))
+                    raise AttributeError(f'{pluginmod.__file__}: {str(s)}')
         sys.path = syspath
 
-        new_args = dict()
-        new_args['state'] = args.get('state')
-
+        new_args = {'state': args.get('state')}
         values = plugin.validate()
 
         new_args['host'] = task_vars.get('bridge_connection')    # bridged connection for awx otherwise "172.0.0.1"

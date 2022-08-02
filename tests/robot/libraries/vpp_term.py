@@ -3,11 +3,11 @@
 from robot.api import logger
 
 def Find_IPV4_In_Text(text):
-    ipv4 = []
-    for word in text.split():
-        if (word.count('.') == 3) and (word.count('/') == 1):
-            ipv4.append(word)
-    return ipv4
+    return [
+        word
+        for word in text.split()
+        if (word.count('.') == 3) and (word.count('/') == 1)
+    ]
 
 
 def Find_IPV6_In_Text(text):
@@ -20,22 +20,17 @@ def Find_IPV6_In_Text(text):
     :rtype: list of str
     """
 
-    ipv6 = []
-    for word in text.split():
-        if (word.count(':') >= 2) and (word.count('/') == 1):
-            ipv6.append(word)
-    return ipv6
+    return [
+        word
+        for word in text.split()
+        if (word.count(':') >= 2) and (word.count('/') == 1)
+    ]
 
 
 # input - output from sh hardware interface_name
 # output - list of words containing mac
 def Find_MAC_In_Text(text):
-    mac = ''
-    for word in text.split():
-        if (word.count(':') == 5):
-            mac = word
-            break
-    return mac
+    return next((word for word in text.split() if (word.count(':') == 5)), '')
 
 
 # input - output from sh ip arp command
@@ -56,9 +51,9 @@ def parse_arp(info, intf, ip, mac):
     """
 
     for line in info.splitlines():
-            if intf in line and ip in line and mac in line:
-                print("ARP Found:"+line)
-                return True
+        if intf in line and ip in line and mac in line:
+            print(f"ARP Found:{line}")
+            return True
     logger.debug("ARP not Found")
     return False
 
@@ -82,7 +77,7 @@ def parse_neighbor(info, intf, ip, mac):
 
     for line in info.splitlines():
         if intf in line and ip in line and mac in line:
-            print("Neighbor Found:"+line)
+            print(f"Neighbor Found:{line}")
             return True
     logger.debug("Neighbor not Found")
     return False
@@ -126,12 +121,12 @@ def parse_memif_info(info):
             if line.strip().split()[0] == "socket-id":
                 try:
                     socket_id = int(line.strip().split()[1])
-                    state.append("id="+line.strip().split()[3])
+                    state.append(f"id={line.strip().split()[3]}")
                     for sock_line in sockets_line:
                         try:
                             num = int(sock_line.strip().split()[0])
                             if num == socket_id:
-                                state.append("socket=" + sock_line.strip().split()[-1])
+                                state.append(f"socket={sock_line.strip().split()[-1]}")
                         except ValueError:
                             pass
                 except ValueError:

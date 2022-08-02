@@ -20,10 +20,7 @@ from action_plugins.pout.models.vpp.l3.route_pb2 import Route
 
 
 def plugin_init(name, values, agent_name, ip, port):
-    if name == 'route':
-        return RouteValidation(values, agent_name)
-    else:
-        return False
+    return RouteValidation(values, agent_name) if name == 'route' else False
 
 
 class RouteValidation:
@@ -38,7 +35,4 @@ class RouteValidation:
         return MessageToJson(route, preserving_proto_field_name=True, indent=None)
 
     def create_key(self):
-        return "/vnf-agent/{}/config/vpp/v2/route/vrf/{}/dst/{}/gw/{}".format(self.agent_name,
-                                                                              self.values.get('name', 0),
-                                                                              self.values['dst_network'],
-                                                                              self.values.get('next_hop_addr', ''))
+        return f"/vnf-agent/{self.agent_name}/config/vpp/v2/route/vrf/{self.values.get('name', 0)}/dst/{self.values['dst_network']}/gw/{self.values.get('next_hop_addr', '')}"

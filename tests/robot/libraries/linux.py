@@ -23,20 +23,13 @@ def Parse_Linux_Interfaces(data):
     return ints
 
 def Pick_Linux_Interface(ints, name):
-    int = []
-    for key in ints[name]:
-        int.append(key+"="+ints[name][key])
-    return int
+    return [f"{key}={ints[name][key]}" for key in ints[name]]
 
 
 # input - json output from Parse_Linux_Interfaces
 # output - true if interface exist, false if not
 def Check_Linux_Interface_Presence(data, mac):
-    present = False
-    for iface in data:
-        if data[iface]["mac"] == mac:
-            present = True
-    return present
+    return any(data[iface]["mac"] == mac for iface in data)
 
 # input - json output from Parse_Linux_Interfaces
 # output - true if interface exist, false if not
@@ -44,19 +37,13 @@ def Check_Linux_Interface_IP_Presence(data, mac, ip):
     present_mac = False
     present_ip = False
     for iface in data:
-        if  "mac" in  data[iface]:
-           if data[iface]["mac"] == mac:
-              present_mac = True
-        if "ipv4" in data[iface]:
-           if data[iface]["ipv4"] == ip:
-              present_ip = True
-        if "ipv6" in data[iface]:
-           if data[iface]["ipv6"] == ip:
-              present_ip = True
-    if present_mac == True and present_ip == True:
-        return True
-    else:
-        return False
+        if "mac" in data[iface] and data[iface]["mac"] == mac:
+            present_mac = True
+        if "ipv4" in data[iface] and data[iface]["ipv4"] == ip:
+            present_ip = True
+        if "ipv6" in data[iface] and data[iface]["ipv6"] == ip:
+            present_ip = True
+    return present_mac == True and present_ip == True
 
 
 def parse_linux_arp_entries(data):

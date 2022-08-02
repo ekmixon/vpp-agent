@@ -24,11 +24,7 @@ def bridge_domain_dump(host, username, password, node):
     data = vpp_api.vpp_api.execute_api(
         host, username, password, node, "bridge_domain_dump", bd_id=int_max)
 
-    bridges = []
-    for item in data[0]["api_reply"]:
-        bridges.append(process_bridge_domain_dump(item))
-
-    return bridges
+    return [process_bridge_domain_dump(item) for item in data[0]["api_reply"]]
 
 
 def process_bridge_domain_dump(data):
@@ -65,5 +61,4 @@ def filter_bridge_domain_dump_by_id(data, bd_id):
     for item in data:
         if str(item["bd_id"]) == str(bd_id):
             return item
-    else:
-        raise RuntimeError("Bridge domain not found by id {id}.".format(id=bd_id))
+    raise RuntimeError("Bridge domain not found by id {id}.".format(id=bd_id))

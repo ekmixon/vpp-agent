@@ -9,15 +9,14 @@ def check_vxlan_tunnel_presence_from_api(data, src, dst, vni):
         if iface["src_address"] == src and iface["dst_address"] == dst and iface["vni"] == int(vni):
             logger.trace("matched interface: {interface}".format(interface=iface))
             return True, iface["sw_if_index"]
-    else:
-        logger.debug(
-            "interface with:\n"
-            "src_addr: {src_address}\n"
-            "dst_addr: {dst_address}\n"
-            "vni: {vni}\n"
-            "not found in dump. Full dump:\n"
-            "{data}".format(
-                src_address=src, dst_address=dst, vni=vni, data=data))
+    logger.debug(
+        "interface with:\n"
+        "src_addr: {src_address}\n"
+        "dst_addr: {dst_address}\n"
+        "vni: {vni}\n"
+        "not found in dump. Full dump:\n"
+        "{data}".format(
+            src_address=src, dst_address=dst, vni=vni, data=data))
 
 
 def vxlan_tunnel_dump(host, username, password, node):
@@ -28,11 +27,7 @@ def vxlan_tunnel_dump(host, username, password, node):
     data = vpp_api.vpp_api.execute_api(
         host, username, password, node, "vxlan_tunnel_dump", sw_if_index=int_max)
 
-    interfaces = []
-    for interface in data[0]["api_reply"]:
-        interfaces.append(process_vxlan_dump(interface))
-
-    return interfaces
+    return [process_vxlan_dump(interface) for interface in data[0]["api_reply"]]
 
 
 def process_vxlan_dump(data):
@@ -71,7 +66,7 @@ def process_vxlan_dump(data):
 
     instance = int(data["instance"])
 
-    output = {
+    return {
         "sw_if_index": index,
         "ipv6": ipv6,
         "vrf": vrf_id,
@@ -80,15 +75,12 @@ def process_vxlan_dump(data):
         "src_address": source_address,
         "next_index": next_index,
         "mcast_index": mcast_index,
-        "instance": instance
+        "instance": instance,
     }
-
-    return output
 
 
 def filter_vxlan_tunnel_dump_by_index(data, index):
     for item in data:
         if int(item["sw_if_index"]) == int(index):
             return item
-    else:
-        raise RuntimeError("ACL not found by sw_if_index {index}.".format(index=index))
+    raise RuntimeError("ACL not found by sw_if_index {index}.".format(index=index))

@@ -11,11 +11,7 @@ def acl_dump(host, username, password, node):
     data = vpp_api.vpp_api.execute_api(
         host, username, password, node, "acl_dump", acl_index=int_max)
 
-    acls = []
-    for item in data[0]["api_reply"]:
-        acls.append(process_acl_dump(item))
-
-    return acls
+    return [process_acl_dump(item) for item in data[0]["api_reply"]]
 
 
 def process_acl_dump(data):
@@ -86,5 +82,4 @@ def filter_acl_dump_by_name(data, name):
     for item in data:
         if str(item["acl_name"]) == str(name):
             return item
-    else:
-        raise RuntimeError("ACL not found by name {name}.".format(name=name))
+    raise RuntimeError("ACL not found by name {name}.".format(name=name))
